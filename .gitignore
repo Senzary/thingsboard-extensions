@@ -81,3 +81,8 @@ rebuild-docker.sh
 # Compiled Scss
 
 style.comp.scss
+.temp*.js
+.temp/*
+.temp/
+./.temp/*
+./.temp/

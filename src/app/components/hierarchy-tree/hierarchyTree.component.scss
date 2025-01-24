@@ -1,0 +1,89 @@
+.tree-container {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    background-color: #3D3B83;
+    color: white !important;
+}
+
+.customers-groups-tree {
+    background-color: #3D3B83;
+    color: white !important;
+}
+
+// .partners-breadcrumb {
+//     color: #994C00;
+// }
+
+// .distributors-breadcrumb {
+//     color: #6600CC;
+// }
+
+// .integrators-breadcrumb {
+//     color: #004C99;
+// }
+
+// .clients-breadcrumb {
+//     color: #009900;
+// }
+
+.sz-mat-chip {
+    --mdc-chip-elevated-container-color: #FFF;
+    --mdc-chip-elevated-disabled-container-color: #FFF;
+    --mdc-chip-label-text-color: #3D3B83;
+    --mdc-chip-disabled-label-text-color: #888;
+    --mdc-chip-with-icon-icon-color: #212121;
+    --mdc-chip-with-icon-disabled-icon-color: #212121;
+    --mdc-chip-with-trailing-icon-disabled-trailing-icon-color: #212121;
+    --mdc-chip-with-trailing-icon-trailing-icon-color: #212121;
+    --mdc-chip-with-icon-selected-icon-color: #212121;
+    --mdc-chip-label-text-weight: bold;
+}
+
+// .partners-group {
+//     // background-color: #FF9933 !important;
+//     // color: #994C00;
+//     // border-color: #994C00;
+//     --mdc-chip-label-text-color: #994C00;
+// }
+
+
+// .distributors-group {
+//     // background-color: #B266FF !important;
+//     // color: #6600CC;
+//     // border-color:#6600CC ;
+//     --mdc-chip-label-text-color: #6600CC;
+// }
+
+
+// .integrators-group {
+//     // background-color: #3399FF !important;
+//     // color: #004C99;
+//     // border-color: #004C99;
+//     --mdc-chip-label-text-color: #004C99;
+// }
+
+// .clients-group {
+//     // background-color: #33FF33 !important;
+//     // color: #009900 !important;
+//     // border-color: #009900;
+//     --mdc-chip-label-text-color: #009900;
+// }
+
+.mat-standard-chip {
+    min-height: 1.5rem;
+}
+
+.mat-chip {
+    font-size: small;
+}
+
+.node-icon {
+    color: #FFF;
+}
+
+.mat-tree-node{
+    color: #FFF;
+} 

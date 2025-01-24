@@ -8,6 +8,7 @@ import addCustomWidgetLocale from './locale/custom-widget-locale.constant';
 import { CommonModule } from '@angular/common';
 import { ExamplesModule } from './components/examples/examples.module';
 import { addLibraryStyles } from './scss/lib-styles';
+import { HierarchyTreeModule } from './components/hierarchy-tree/hierarchyTree.module';
 
 @NgModule({
   declarations: [],
@@ -15,6 +16,7 @@ import { addLibraryStyles } from './scss/lib-styles';
     CommonModule
   ],
   exports: [
+    HierarchyTreeModule,
     ExamplesModule
   ]
 })
