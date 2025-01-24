@@ -1,4 +1,4 @@
-import { BaseData, EntityId, EntityType, HasId } from '@shared/public-api';
+import { AliasEntityType, BaseData, EntityId, EntityType, HasId } from '@shared/public-api';
 
 export interface IEntityNode {
     entityId: EntityId;
@@ -32,7 +32,7 @@ export class EntityNode implements IEntityNode {
         this.entityId = item.id;
         this.group = 'base';
         if (group) this.group = group;
-        if (this.entityId.entityType !== EntityType.ENTITY_GROUP) return;
+        if (this.entityId.entityType == EntityType.CUSTOMER) return;
         this.group = this.name;
         this.setChildren(item.children, this.group);
     }

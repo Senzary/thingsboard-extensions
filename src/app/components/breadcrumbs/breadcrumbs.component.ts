@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Breadcrumbs, IBreadcrumb } from './breadcrumbs.models';
-import { WidgetContext } from '../../models/widget-component.models';
+import { WidgetContext } from '@app/modules/home/models/widget-component.models';
 
 @Component({
     selector: 'tb-breadcrumbs',

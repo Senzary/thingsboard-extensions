@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
-import { WidgetAction, WidgetContext } from '../../models/widget-component.models';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import {
     Authority,
+    AuthUser,
     Customer,
     EntityGroupInfo,
     EntityType,
@@ -14,7 +14,6 @@ import {
 import { AppState, CustomerService, EntityGroupService, IWidgetSubscription } from '@core/public-api';
 import { Store } from '@ngrx/store';
 import { concatMap, filter, forkJoin, from, groupBy, map, mergeMap, Observable, of, switchMap, toArray } from 'rxjs';
-import { CurrentUser } from '../../models/widget-component.models';
 import {
     EntityNode,
     FlatNode,
@@ -23,6 +22,7 @@ import {
     IEntityNode
 } from './hierarchyTree.models';
 import { Breadcrumbs, IBreadcrumb } from '../breadcrumbs/breadcrumbs.models';
+import { WidgetContext, WidgetAction } from '@app/modules/home/models/widget-component.models';
 
 const SenzaryCustomerName = 'Senzary Tenant Customer';
 
@@ -124,7 +124,7 @@ export class HierarchyTreeComponent extends PageComponent implements OnInit {
             map((response) => response.data[0])
         );
     }
-    getUserCustomer(user: CurrentUser): Observable<Customer> {
+    getUserCustomer(user: AuthUser): Observable<Customer> {
         let customerIdObservable = of(user.customerId);
         if (user.authority !== Authority.CUSTOMER_USER) {
             customerIdObservable = this.getSenzaryCustomer().pipe(

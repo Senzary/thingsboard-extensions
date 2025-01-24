@@ -5,8 +5,8 @@
   "description": "ThingsBoard Extension Widgets",
   "scripts": {
     "ng": "ng",
-    "start": "yarn run build:scss && node --max_old_space_size=8048 ./node_modules/@angular/cli/bin/ng serve",
-    "build": "yarn run build:scss && node --max_old_space_size=8048 ./node_modules/@angular/cli/bin/ng build && node install.js",
+    "start": "yarn run build:scss && node --max_old_space_size=8048 ./node_modules/@angular/cli/bin/ng serve widget-extension",
+    "build": "yarn run build:scss && node --max_old_space_size=8048 ./node_modules/@angular/cli/bin/ng build widget-extension && node install.js",
     "build:scss": "npx postcss ./src/app/scss/style.scss -o ./src/app/scss/style.comp.scss",
     "prepare": "patch-package",
     "lint": "ng lint"
@@ -75,7 +75,7 @@
     "prettier": "^2.8.3",
     "rxjs": "~7.8.1",
     "tailwindcss": "^3.4.15",
-    "thingsboard": "https://github.com/thingsboard/thingsboard-ui-types.git#release/3.9",
+    "thingsboard": "https://github.com/thingsboard/thingsboard-pe-ui-types.git#release/3.9",
     "ts-node": "^10.9.2",
     "tslib": "^2.7.0",
     "typescript": "~5.5.4",
