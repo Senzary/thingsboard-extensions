@@ -1,0 +1,17 @@
+<div class="breadcrumbs">
+    <div
+        [class]='"breadcrumb " + item.groupName + "-breadcrumb"'
+        *ngFor="let item of breadcrumbs.items; index as index">
+        <mat-icon 
+            *ngIf="index > 0"
+            [class]='"breadcrumb-icon material-icons-round"'>
+            forward
+        </mat-icon>
+        <span 
+            [disabled]="!isLoading$"
+            [class]='breadcrumbs.active.id === item.id ? "active" : ""'
+            (click)="breadcrumbClick(item)">
+            {{item.name}}
+        </span>
+    </div>
+</div>

@@ -11,11 +11,14 @@
       ],
       "parserOptions": {
         "project": [
-          "tsconfig.lib.json"
+          "src/tsconfig.lib.json"
         ],
         "createDefaultProgram": true
       },
       "rules": {
+        "curly": ["error", "multi-line"],
+        "jsdoc/newline-after-description": "off",
+        "object-shorthand": ["error", "methods"],
         "@angular-eslint/directive-selector": [
           "error",
           {

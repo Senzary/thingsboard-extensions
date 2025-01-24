@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDirs": ["app", "../node_modules/thingsboard/src"],
+    "outDir": "../out-tsc/app",
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSources": true
+  },
+  "files": [
+    "src/app/public-api.ts"
+  ],
+  "include": [
+    "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "src/test.ts",
+    "**/*.spec.ts"
+  ]
+}

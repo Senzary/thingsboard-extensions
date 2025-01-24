@@ -24,11 +24,11 @@ import { getDefCenterPosition, parseFunction, parseWithTranslation } from './map
   selector: 'tb-example-map',
   template: ''
 })
-export class ExampleMap implements MapWidgetInterface, OnInit {
+export class ExampleMapComponent implements MapWidgetInterface, OnInit {
 
   @Input() ctx: any;
 
-  @Input() mapProvider: MapProviders
+  @Input() mapProvider: MapProviders;
 
   public $element: any;
   constructor() {}
@@ -87,7 +87,7 @@ export class ExampleMap implements MapWidgetInterface, OnInit {
         || this.ctx.$injector.get(TranslateService).instant(key));
     }
     return '';
-  }
+  };
 
   getDescriptors(name: string): { [name: string]: ($event: Event, datasource: Datasource) => void } {
     const descriptors = this.ctx.actionsApi.getActionDescriptors(name);
@@ -130,8 +130,8 @@ export class ExampleMap implements MapWidgetInterface, OnInit {
     this.ctx.defaultSubscription.subscribeAllForPaginatedData(this.pageLink, null);
     const subscription = this.ctx.defaultSubscription;
     subscription.callbacks.onDataUpdated = () => {
-      this.update()
-    }
+      this.update();
+    };
   }
 
   private onCustomAction(descriptor: WidgetActionDescriptor, $event: Event, entityInfo: Datasource) {

@@ -5,7 +5,8 @@
   "description": "ThingsBoard Extension Widgets",
   "scripts": {
     "ng": "ng",
-    "start": "node --max_old_space_size=8048 ./node_modules/@angular/cli/bin/ng serve",
+    "start": "node --max_old_space_size=8048 ./node_modules/@angular/cli/bin/ng serve widget-extension",
+    "dev": "node --max_old_space_size=8048 ./node_modules/@angular/cli/bin/ng serve dev-extensions",
     "build": "ng build && node install.js",
     "e2e": "ng e2e",
     "prepare": "patch-package",

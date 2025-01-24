@@ -3,6 +3,80 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
+    "dev-extensions": {
+      "projectType": "application",
+      "root": "src",
+      "sourceRoot": "src",
+      "prefix": "tb",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist",
+            "index": "src/index.html",
+            "main": "src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "browserTarget": "dev-extensions:build:production"
+            },
+            "development": {
+              "browserTarget": "dev-extensions:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "dev-extensions:build"
+          }
+        }
+      }
+    },
     "widget-extension": {
       "projectType": "library",
       "root": "src",
@@ -33,7 +107,8 @@
         "serve": {
           "builder": "@tb/custom-builder:static-serve",
           "options": {
-            "port": 5000,
+            "host": "0.0.0.0",
+            "port": 8080,
             "tsConfig": "src/tsconfig.lib.json",
             "project": "src/ng-package.json",
             "staticServeConfig": "static.serve.conf.js"

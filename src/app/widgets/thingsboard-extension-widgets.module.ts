@@ -7,14 +7,17 @@ import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import addCustomWidgetLocale from './locale/custom-widget-locale.constant';
 import { ExampleModule } from './components/example/example.module';
+
+import { HierarchyTreeModule } from './components/hierarchy-tree/hierarchyTree.module';
 import { SharedModule } from '@shared/public-api';
 import { HomeComponentsModule } from '@home/components/public-api';
-import { ExampleMap } from './components/map/example-map.component';
+import { ExampleMapComponent } from './components/map/example-map.component';
 import { CustomAlarmsTableWidgetComponent } from './components/alarm/custom-alarms-table-widget.component';
+import { HierarchyTreeComponent } from './components/hierarchy-tree/hierarchyTree.component';
 
 @NgModule({
   declarations: [
-    ExampleMap,
+    ExampleMapComponent,
     CustomAlarmsTableWidgetComponent
   ],
   imports: [
@@ -23,7 +26,8 @@ import { CustomAlarmsTableWidgetComponent } from './components/alarm/custom-alar
     SharedModule
   ],
   exports: [
-    ExampleMap,
+    HierarchyTreeModule,
+    ExampleMapComponent,
     ExampleModule,
     CustomAlarmsTableWidgetComponent
   ]

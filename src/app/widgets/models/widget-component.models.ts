@@ -3,9 +3,12 @@
 ///
 
 import {
+  Authority,
+  CustomerId,
   DataSet,
   Datasource,
   DatasourceData,
+  HasId,
   PageLink,
   SortOrder,
   Timewindow,
@@ -66,8 +69,44 @@ export interface WidgetAction extends IWidgetAction {
   show: boolean;
 }
 
+export interface CurrentUser {
+  authority: Authority;
+  customerId: string;
+  enabled: boolean;
+  exp: number;
+  firstName: string;
+  iat: number;
+  isPublic: boolean;
+  iss: string;
+  lastName: string;
+  scopes: Authority[];
+  sessionId: string;
+  sub: string;
+  tenantId: string;
+  userId: string;
+}
+
+
+export interface SZStateEntity {
+  entityName: string;
+  entityId: HasId;
+  entityLabel: string;
+};
+
+export interface SZStateParams {
+  currentCustomer?: SZStateEntity;
+  currentLocation?: SZStateEntity;
+  currentArea?: SZStateEntity;
+  currentAsset?: SZStateEntity;
+};
+
+export interface SZStateController extends IStateController {
+  getStateParams(): SZStateParams;
+};
+
+
 export interface WidgetContext {
-  readonly stateController: IStateController;
+  readonly stateController: SZStateController;
   readonly aliasController: IAliasController;
   readonly dashboardTimewindow: Timewindow;
   readonly widgetConfig: WidgetConfig;
@@ -136,6 +175,8 @@ export interface WidgetContext {
 
   rxjs: any;
 
+  currentUser: CurrentUser;
+
   showSuccessToast(message: string, duration?: number,
                    verticalPosition?: NotificationVerticalPosition,
                    horizontalPosition?: NotificationHorizontalPosition,
@@ -193,3 +234,11 @@ export interface WidgetInfo extends WidgetTypeDescriptor, WidgetControllerDescri
   typeDataKeySettingsSchema?: string | any;
   componentFactory?: ComponentFactory<IDynamicWidgetComponent>;
 }
+
+export declare enum CustomerHierarchyGroup {
+  PARTNER = 'partner',
+  DISTRIBUTOR = 'distributor',
+  INTEGRATOR = 'integrator',
+  AGENT = 'agent',
+  CLIENT = 'client'
+};
