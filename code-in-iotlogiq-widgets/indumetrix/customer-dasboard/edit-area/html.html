@@ -1,0 +1,431 @@
+<form
+    #editAssetForm="ngForm"
+    [formGroup]="editAssetFormGroup"
+    (ngSubmit)="save()"
+    style="width: 512px"
+>
+    <mat-toolbar fxLayout="row" color="primary">
+        <h2>Edit {{ assetProfileLabel }}</h2>
+        <span fxFlex></span>
+        <button
+            mat-icon-button
+            (click)="cancel()"
+            type="button"
+        >
+            <mat-icon class="material-icons">close</mat-icon>
+        </button>
+    </mat-toolbar>
+    <mat-progress-bar
+        color="warn"
+        mode="indeterminate"
+        *ngIf="isLoading$ | async"
+    >
+    </mat-progress-bar>
+    <div style="height: 4px" *ngIf="!(isLoading$ | async)"></div>
+    <div mat-dialog-content fxLayout="column" style="width: 100%">
+        <mat-stepper
+            #stepper
+            *ngIf="editAssetFormGroup"
+            [linear]="false"
+            animationDuration="1000"
+        >
+            <mat-step [stepControl]="editAssetFormGroup.get('requiredFields')">
+                <ng-template matStepLabel>Required Data</ng-template>
+                <div fxLayout="column">
+                    <fieldset formGroupName="requiredFields">
+                        <mat-form-field fxFlex class="mat-block">
+                            <mat-label>{{ templateLabel }} name</mat-label>
+                            <mat-hint hintlabel="true">
+                                unique identifier: {{ assetName }}
+                            </mat-hint>
+                            <input
+                                matInput
+                                formControlName="displayName"
+                                (change)="checkAssetNameIsUnique($event)"
+                                (input)="updateAssetName($event)"
+                                required
+                            />
+                            <mat-error
+                                *ngIf="editAssetFormGroup.get('requiredFields').get('displayName').hasError('required')"
+                            >
+                                A name is required for this entity.
+                            </mat-error>
+                            <mat-error
+                                *ngIf="editAssetFormGroup.get('requiredFields').get('displayName').hasError('notUnique')"
+                            >
+                                {{
+                                editAssetFormGroup.get("requiredFields").get("displayName").errors.notUnique
+                                }}
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field fxFlex class="mat-block">
+                            <mat-label>Label</mat-label>
+                            <mat-hint hintlabel="true">
+                                For organizing purposes.
+                            </mat-hint>
+                            <input
+                                matInput
+                                formControlName="label"
+                                required
+                            />
+                        </mat-form-field>
+                        <!-- required fields loop -->
+                        <mat-form-field
+                            fxFlex
+                            class="mat-block"
+                            *ngFor="let field of requiredFields"
+                        >
+                            <mat-label>{{ field.label }}</mat-label>
+                            <mat-hint
+                                *ngIf="'description' in field"
+                                hintlabel="true"
+                            >
+                                {{ field.description }}
+                            </mat-hint>
+                            <input
+                                matInput
+                                [formControlName]="field.name"
+                                *ngIf="(!field.input || field.input == 'input')"
+                                required
+                                [value]="editAssetFormGroup.get('requiredFields').get(field.name)?.value"
+                            />
+                            <textarea
+                                matInput
+                                [formControlName]="field.name"
+                                *ngIf="(field.input && field.input == 'textarea')"
+                                required
+                                [value]="editAssetFormGroup.get('requiredFields').get(field.name)?.value"
+                            ></textarea>
+                            <mat-select
+                                [formControlName]="field.name"
+                                *ngIf="(field.type === 'enum' || field.input === 'select')"
+                                required
+                            >
+                                <mat-option
+                                    *ngFor="let option of field.enumOptions"
+                                    [value]="option"
+                                >
+                                    {{ option }}
+                                </mat-option>
+                            </mat-select>
+                            <mat-error
+                                *ngIf="editAssetFormGroup.get('requiredFields').get(field.name).hasError('required')"
+                            >
+                                A value for {{ field.label }} is required.
+                            </mat-error>
+                        </mat-form-field>
+                        <!-- end required fields loop -->
+                        <div
+                            class="buttons-row"
+                            fxLayout="row"
+                            fxLayoutGap="8px"
+                            fxLayoutAlign="end center"
+                        >
+                            <button
+                                mat-button
+                                color="primary"
+                                type="button"
+                                [disabled]="(isLoading$ | async)"
+                                (click)="cancel()"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                mat-button
+                                mat-raised-button
+                                color="primary"
+                                (click)="onStepChange($event, stepper)"
+                                type="button"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+            </mat-step>
+            <mat-step
+                *ngIf="additionalFields.length > 0"
+                [stepControl]="editAssetFormGroup.get('additionalFields')"
+            >
+                <ng-template matStepLabel>Additional Data</ng-template>
+                <div fxLayout="column">
+                    <fieldset formGroupName="additionalFields">
+                        <!-- additional fields loop -->
+                        <mat-form-field
+                            fxFlex
+                            class="mat-block"
+                            *ngFor="let field of additionalFields"
+                        >
+                            <mat-label>{{ field.label }}</mat-label>
+                            <mat-hint
+                                *ngIf="'description' in field"
+                                hintlabel="true"
+                            >
+                                {{ field.description }}
+                            </mat-hint>
+                            <input
+                                matInput
+                                [formControlName]="field.name"
+                                *ngIf="(!field.input || field.input == 'input')"
+                                required
+                                [value]="editAssetFormGroup.get('additionalFields').get(field.name)?.value"
+                            />
+                            <textarea
+                                matInput
+                                [formControlName]="field.name"
+                                *ngIf="(field.input && field.input == 'textarea')"
+                                required
+                                [value]="editAssetFormGroup.get('additionalFields').get(field.name)?.value"
+                            ></textarea>
+                            <mat-select
+                                [formControlName]="field.name"
+                                *ngIf="(field.type === 'enum' || field.input === 'select')"
+                                required
+                            >
+                                <mat-option
+                                    *ngFor="let option of field.enumOptions"
+                                    [value]="option"
+                                >
+                                    {{ option }}
+                                </mat-option>
+                            </mat-select>
+                            <mat-error
+                                *ngIf="editAssetFormGroup.get('additionalFields').get(field.name).hasError('required')"
+                            >
+                                A value for {{ field.label }} is required.
+                            </mat-error>
+                        </mat-form-field>
+                        <!-- end additional fields loop -->
+                        <div
+                            class="buttons-row"
+                            fxLayout="row"
+                            fxLayoutGap="8px"
+                            fxLayoutAlign="end center"
+                        >
+                            <button
+                                mat-button
+                                color="primary"
+                                type="button"
+                                [disabled]="(isLoading$ | async)"
+                                (click)="cancel()"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                mat-button
+                                mat-raised-button
+                                color="primary"
+                                (click)="onStepChange($event, stepper)"
+                                type="button"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+            </mat-step>
+            <mat-step
+                *ngIf="mapFields.length > 0"
+                [stepControl]="editAssetFormGroup.get('mapFields')"
+            >
+                <ng-template matStepLabel>Maps</ng-template>
+                <div
+                    *ngIf="entityId != null"
+                    fxFlex
+                    fxLayout="column"
+                    fxLayoutGap="20px"
+                    class="template-container"
+                >
+                    <div
+                        fxFlex
+                        fxLayout="column"
+                        fxLayoutGap="16px"
+                        style="margin-top: 30px; margin-bottom: 16px"
+                        [formGroup]="editAssetFormGroup.get('mapFields')"
+                    >
+                        <section *ngIf="!!entityId">
+                            <tb-dashboard-state
+                                style="height: 256px; width: 100%"
+                                [ctx]="widgetContext"
+                                stateId="entity_map_input"
+                                [entityId]="entityId"
+                            >
+                            </tb-dashboard-state>
+                        </section>
+                    </div>
+                </div>
+                <div
+                    class="buttons-row"
+                    fxLayout="row"
+                    fxLayoutGap="8px"
+                    fxLayoutAlign="end center"
+                >
+                    <button
+                        mat-button
+                        color="primary"
+                        type="button"
+                        [disabled]="(isLoading$ | async)"
+                        (click)="cancel()"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        mat-button
+                        mat-raised-button
+                        color="primary"
+                        (click)="onStepChange($event, stepper)"
+                        type="button"
+                    >
+                        Next
+                    </button>
+                </div>
+            </mat-step>
+            <mat-step
+                *ngIf="imageFields.length > 0"
+                [stepControl]="editAssetFormGroup.get('imageFields')"
+            >
+                <ng-template matStepLabel>Images</ng-template>
+                <div
+                    *ngIf="entityId != null"
+                    fxFlex
+                    fxLayout="column"
+                    fxLayoutGap="20px"
+                    class="template-container"
+                >
+                    <div
+                        fxFlex
+                        fxLayout="column"
+                        fxLayoutGap="16px"
+                        style="margin-top: 30px; margin-bottom: 16px"
+                        [formGroup]="editAssetFormGroup.get('imageFields')"
+                    >
+                        <div fxFlex *ngFor="let imageField of imageFields">
+                            <fieldset
+                                [disabled]="(isLoading$ | async) || loading"
+                            >
+                                <mat-label>{{ imageField.label }}</mat-label>
+                                <mat-hint
+                                    *ngIf="'description' in field"
+                                    hintlabel="true"
+                                >
+                                    {{ imageField.description }}
+                                </mat-hint>
+                                <tb-image-input
+                                    [formControlName]="imageField.name"
+                                    [showPreview]="true"
+                                    [showClearButton]="true"
+                                ></tb-image-input>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="buttons-row"
+                    fxLayout="row"
+                    fxLayoutGap="8px"
+                    fxLayoutAlign="end center"
+                >
+                    <button
+                        mat-button
+                        color="primary"
+                        type="button"
+                        [disabled]="(isLoading$ | async)"
+                        (click)="cancel()"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        mat-button
+                        mat-raised-button
+                        color="primary"
+                        (click)="onStepChange($event, stepper)"
+                        type="button"
+                    >
+                        Next
+                    </button>
+                </div>
+            </mat-step>
+            <mat-step
+                *ngIf="thresholdFields.length > 0"
+                [stepControl]="editAssetFormGroup.get('thresholdFields')"
+            >
+                <ng-template matStepLabel>Thresholds</ng-template>
+                <div fxLayout="column">
+                    <fieldset formGroupName="thresholdFields">
+                        <!-- additional fields loop -->
+                        <mat-form-field
+                            fxFlex
+                            class="mat-block"
+                            *ngFor="let field of thresholdFields"
+                        >
+                            <mat-label>{{ field.label }}</mat-label>
+                            <mat-hint
+                                *ngIf="'description' in field"
+                                hintlabel="true"
+                            >
+                                {{ field.description }}
+                            </mat-hint>
+                            <input
+                                matInput
+                                [formControlName]="field.name"
+                                *ngIf="(!field.input || field.input == 'input')"
+                                required
+                                [value]="editAssetFormGroup.get('thresholdFields').get(field.name)?.value"
+                            />
+                            <textarea
+                                matInput
+                                [formControlName]="field.name"
+                                *ngIf="(field.input && field.input == 'textarea')"
+                                required
+                                [value]="editAssetFormGroup.get('thresholdFields').get(field.name)?.value"
+                            ></textarea>
+                            <mat-select
+                                [formControlName]="field.name"
+                                *ngIf="(field.type === 'enum' || field.input === 'select')"
+                                required
+                            >
+                                <mat-option
+                                    *ngFor="let option of field.enumOptions"
+                                    [value]="option"
+                                >
+                                    {{ option }}
+                                </mat-option>
+                            </mat-select>
+                            <mat-error
+                                *ngIf="editAssetFormGroup.get('thresholdFields').get(field.name).hasError('required')"
+                            >
+                                A value for {{ field.label }} is required.
+                            </mat-error>
+                        </mat-form-field>
+                        <!-- end additional fields loop -->
+                        <div
+                            class="buttons-row"
+                            fxLayout="row"
+                            fxLayoutGap="8px"
+                            fxLayoutAlign="end center"
+                        >
+                            <button
+                                mat-button
+                                color="primary"
+                                type="button"
+                                [disabled]="(isLoading$ | async)"
+                                (click)="cancel()"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                mat-button
+                                mat-raised-button
+                                color="primary"
+                                (click)="onStepChange($event, stepper)"
+                                type="button"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+            </mat-step>
+        </mat-stepper>
+    </div>
+</form>

@@ -1,0 +1,383 @@
+<form
+    #bulkImportForm="ngForm"
+    [formGroup]="bulkImportFormGroup"
+    (ngSubmit)="createAssets()"
+    class="bulk-import-form"
+>
+    <mat-toolbar fxLayout="row" color="primary">
+        <h2>Bulk import locations</h2>
+        <span fxFlex></span>
+        <button mat-icon-button (click)="cancel()" type="button">
+            <mat-icon class="material-icons">close</mat-icon>
+        </button>
+    </mat-toolbar>
+    <mat-progress-bar
+        color="warn"
+        mode="indeterminate"
+        *ngIf="isLoading$ | async"
+    >
+    </mat-progress-bar>
+    <div style="height: 4px" *ngIf="!(isLoading$ | async)"></div>
+    <div
+        mat-dialog-content
+        fxLayout="column"
+        style="min-width: 360px; max-width: 640px"
+    >
+        <mat-stepper
+            #stepper
+            (selectionChange)="onSelectionChange($event)"
+            *ngIf="bulkImportFormGroup"
+            [linear]="true"
+            animationDuration="1000"
+        >
+            <mat-step [stepControl]="bulkImportFormGroup.get('inputFile')">
+                <ng-template matStepLabel>Template file</ng-template>
+                <div
+                    fxFlex
+                    fxLayout="column"
+                    fxLayoutGap="20px"
+                    class="template-container"
+                >
+                    <label class="section-label">
+                        Please, select one of the following to serve as a
+                        template for your bulk import file:
+                    </label>
+                </div>
+                <div fxLayout="column">
+                    <fieldset formGroupName="inputFile">
+                        <mat-form-field fxFlex class="mat-block">
+                            <mat-label>Bulk import template</mat-label>
+                            <mat-select
+                                cdkFocusInitial
+                                (selectionChange)="onTemplateChange($event)"
+                                formControlName="template"
+                                name="template"
+                            >
+                                <mat-option
+                                    *ngFor="let template of templates"
+                                    [value]="template"
+                                >
+                                    {{ template.optionLabel }}
+                                </mat-option>
+                            </mat-select>
+                            <mat-error
+                                *ngIf="bulkImportFormGroup.get('inputFile').get('template').hasError('required')"
+                            >
+                                A template is required to provide an example for
+                                your bulk import file.
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-label *ngIf="template !== null" fxFlex>
+                            <small>{{ template.additionalInfo.description
+                                }}</small>
+                        </mat-label>
+                        <div
+                            *ngIf="(templateFields?.length > 0 || thresholdFields?.length > 0)"
+                            class="import-info-section"
+                        >
+                            <div
+                                class="import-info-header"
+                                style="margin-bottom: 1rem"
+                            >
+                                These assets will belong to customer: <span>
+                                    {{ customer.entityName }}
+                                </span>
+                            </div>
+                            <div class="import-info-header">
+                                These are column variables for your CSV file:
+                            </div>
+                            <div class="import-info-text">
+                                <div>
+                                    {{ csvFieldsList?.join(" | ") }}
+                                </div>
+                            </div>
+                            <div
+                                class="import-info-header"
+                                style="margin-top: 12px; margin-bottom: 6px"
+                            >
+                                Example:
+                            </div>
+                            <div class="example-content">
+                                {{ csvExamplesList?.join(" | ") }}
+                            </div>
+                            <tb-file-input
+                                style="margin-top: 1rem"
+                                formControlName="file"
+                                required
+                                label="Bulk import file"
+                                [allowedExtensions]="'csv,txt'"
+                                [accept]="'.csv,application/csv,text/csv,.txt,text/plain'"
+                                dropLabel="{{ 'import.drop-file-csv-or' | translate }}"
+                            >
+                            </tb-file-input>
+                            <mat-error
+                                *ngIf="bulkImportFormGroup.get('inputFile').get('file').hasError('required')"
+                            >
+                                Please, remember to add your bulk import file.
+                            </mat-error>
+                        </div>
+                    </fieldset>
+                </div>
+                <div
+                    class="buttons-row"
+                    fxLayout="row"
+                    fxLayoutGap="8px"
+                    fxLayoutAlign="end center"
+                >
+                    <button
+                        mat-button
+                        color="primary"
+                        type="button"
+                        [disabled]="(isLoading$ | async)"
+                        (click)="cancel()"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        mat-button
+                        mat-raised-button
+                        color="primary"
+                        matStepperNext
+                        type="button"
+                    >
+                        Next
+                    </button>
+                </div>
+            </mat-step>
+            <mat-step [stepControl]="bulkImportFormGroup.get('validation')">
+                <ng-template matStepLabel>Data validation</ng-template>
+                <div
+                    fxFlex
+                    fxLayout="column"
+                    fxLayoutGap="20px"
+                    class="template-container"
+                >
+                    <label class="section-label">
+                        Please, check the result of our data validation; if
+                        you're not satisfied with the results you may cancel
+                        this process, update your import file and try again. If
+                        satisfied, please click on next to start bulk import.
+                    </label>
+                </div>
+                <div fxFlex fxLayout="column" *ngIf="results?.length > 0">
+                    <mat-label class="label-valid">Valid items</mat-label>
+                    <table mat-table [dataSource]="results">
+                        <ng-container matColumnDef="line">
+                            <th mat-header-cell *matHeaderCellDef>Item</th>
+                            <td mat-cell *matCellDef="let result">
+                                {{ result.line }}
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="displayName">
+                            <th mat-header-cell *matHeaderCellDef>
+                                Display name
+                            </th>
+                            <td mat-cell *matCellDef="let result">
+                                {{ result.displayName }}
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="label">
+                            <th mat-header-cell *matHeaderCellDef>Label</th>
+                            <td mat-cell *matCellDef="let result">
+                                {{ result.label }}
+                            </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="resultColumns">
+                        </tr>
+                        <tr
+                            mat-row
+                            *matRowDef="let resultRow; columns: resultColumns"
+                        >
+                        </tr>
+                        <mat-paginator
+                            [length]="results?.length"
+                            [pageSize]="5"
+                            [pageSizeOptions]="[5]"
+                            aria-label="Select page"
+                        >
+                        </mat-paginator>
+                    </table>
+                </div>
+                <div fxFlex fxLayout="column" *ngIf="errors?.length > 0">
+                    <mat-label class="label-invalid" style="margin-top: 1rem"
+                    >Items with errors</mat-label>
+                    <table mat-table [dataSource]="errors">
+                        <ng-container matColumnDef="line">
+                            <th
+                                mat-header-cell
+                                *matHeaderCellDef
+                                style="width: 10%"
+                            >
+                                Item
+                            </th>
+                            <td mat-cell *matCellDef="let error">
+                                {{ error.line }}
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="error">
+                            <th mat-header-cell *matHeaderCellDef>Reason</th>
+                            <td mat-cell *matCellDef="let error">
+                                {{ error.error }}
+                            </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="errorColumns"></tr>
+                        <tr
+                            mat-row
+                            *matRowDef="let errorRow; columns: errorColumns"
+                        >
+                        </tr>
+                        <mat-paginator
+                            [length]="errors?.length"
+                            [pageSize]="5"
+                            [pageSizeOptions]="[5]"
+                            aria-label="Select page"
+                        >
+                        </mat-paginator>
+                    </table>
+                </div>
+                <div
+                    class="buttons-row"
+                    fxLayout="row"
+                    fxLayoutGap="8px"
+                    fxLayoutAlign="end center"
+                >
+                    <button
+                        mat-button
+                        color="primary"
+                        type="button"
+                        [disabled]="(isLoading$ | async)"
+                        (click)="cancel()"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        mat-button
+                        mat-raised-button
+                        color="primary"
+                        matStepperNext
+                        [disabled]="(results?.length < 1)"
+                        type="button"
+                    >
+                        Next
+                    </button>
+                </div>
+            </mat-step>
+            <mat-step [stepControl]="bulkImportFormGroup.get('results')">
+                <ng-template matStepLabel>Results</ng-template>
+                <div
+                    fxFlex
+                    fxLayout="column"
+                    fxLayoutGap="20px"
+                    class="template-container"
+                >
+                    <label class="section-label">
+                        These are the results for the bulk import process:
+                    </label>
+                </div>
+                <!-- successes table & errorsOnCreate table -->
+                <div fxFlex fxLayout="column" *ngIf="successes?.length > 0">
+                    <mat-label class="label-valid"
+                    >Created successfully</mat-label>
+                    <table mat-table [dataSource]="successes">
+                        <ng-container matColumnDef="line">
+                            <th mat-header-cell *matHeaderCellDef>Item</th>
+                            <td mat-cell *matCellDef="let success">
+                                {{ success.line }}
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="displayName">
+                            <th mat-header-cell *matHeaderCellDef>
+                                Display name
+                            </th>
+                            <td mat-cell *matCellDef="let success">
+                                {{ success.displayName }}
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="entityId">
+                            <th mat-header-cell *matHeaderCellDef>Entity id</th>
+                            <td mat-cell *matCellDef="let success">
+                                {{ success.id }}
+                            </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="successColumns">
+                        </tr>
+                        <tr
+                            mat-row
+                            *matRowDef="let successRow; columns: successColumns"
+                        >
+                        </tr>
+                        <mat-paginator
+                            [length]="successes?.length"
+                            [pageSize]="5"
+                            [pageSizeOptions]="[5]"
+                            aria-label="Select page"
+                        >
+                        </mat-paginator>
+                    </table>
+                </div>
+                <div
+                    fxFlex
+                    fxLayout="column"
+                    *ngIf="errorsOnCreate?.length > 0"
+                >
+                    <mat-label style="margin-top: 1rem" class="label-invalid"
+                    >Failed attempts</mat-label>
+                    <table mat-table [dataSource]="errorsOnCreate">
+                        <ng-container matColumnDef="line">
+                            <th
+                                mat-header-cell
+                                *matHeaderCellDef
+                                style="width: 10%"
+                            >
+                                Item
+                            </th>
+                            <td mat-cell *matCellDef="let error">
+                                {{ error.line }}
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="error">
+                            <th mat-header-cell *matHeaderCellDef>Reason</th>
+                            <td mat-cell *matCellDef="let error">
+                                {{ error.error }}
+                            </td>
+                        </ng-container>
+                        <tr
+                            mat-header-row
+                            *matHeaderRowDef="errorsOnCreateColumns"
+                        >
+                        </tr>
+                        <tr
+                            mat-row
+                            *matRowDef="let errorRow; columns: errorsOnCreateColumns"
+                        >
+                        </tr>
+                        <mat-paginator
+                            [length]="errorsOnCreate?.length"
+                            [pageSize]="5"
+                            [pageSizeOptions]="[5]"
+                            aria-label="Select page"
+                        >
+                        </mat-paginator>
+                    </table>
+                </div>
+                <div
+                    class="buttons-row"
+                    fxLayout="row"
+                    fxLayoutGap="8px"
+                    fxLayoutAlign="end center"
+                >
+                    <button
+                        mat-button
+                        mat-raised-button
+                        color="primary"
+                        type="button"
+                        [disabled]="(isLoading$ | async)"
+                        (click)="cancel()"
+                    >
+                        Finsh
+                    </button>
+                </div>
+            </mat-step>
+        </mat-stepper>
+    </div>
+</form>
