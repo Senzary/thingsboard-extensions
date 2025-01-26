@@ -1,17 +1,4 @@
-.tree-container {
-    display: flex;
-    flex-flow: column;
-    width: 100%;
-    height: 100%;
-    overflow-y: scroll;
-    background-color: #3D3B83;
-    color: white !important;
-}
 
-.customers-groups-tree {
-    background-color: #3D3B83;
-    color: white !important;
-}
 
 // .partners-breadcrumb {
 //     color: #994C00;
@@ -73,7 +60,7 @@
 // }
 
 .mat-standard-chip {
-    min-height: 1.5rem;
+    min-height: 1.2rem;
 }
 
 .mat-chip {

@@ -1,0 +1,13 @@
+<div class="tree-container">
+    <tb-breadcrumbs
+        [ctx]="ctx"
+        [breadcrumbs]="breadcrumbs"
+        (clickOnBreadcrumb)="onSelectCustomerBreadcrumb($event)"
+    ></tb-breadcrumbs>
+    <tb-hierarchy-tree 
+        [ctx]="ctx"
+        [dataSource]="nodes"
+        [selectedItem]="selectedCustomer"
+        (clickOnChildrenIcon)="onSelectCustomerNode($event)">
+    </tb-hierarchy-tree>
+</div>

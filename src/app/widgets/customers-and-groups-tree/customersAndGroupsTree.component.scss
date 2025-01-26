@@ -1,0 +1,18 @@
+.tree-container {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    background-color: #3D3B83;
+    color: white !important;
+    --mat-tree-container-background-color: #3D3B83 !important; 
+    & * mat-tree {
+        background-color: #3D3B83 !important;
+    }
+}
+
+.customers-groups-tree {
+    background-color: #3D3B83;
+    color: white !important;
+}

@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { ExamplesModule } from './components/examples/examples.module';
 import { addLibraryStyles } from './scss/lib-styles';
 import { HierarchyTreeModule } from './components/hierarchy-tree/hierarchyTree.module';
+import { BreadcrumbsModule, CustomersAndGroupsModule } from './public-api';
 
 @NgModule({
   declarations: [],
@@ -17,7 +18,9 @@ import { HierarchyTreeModule } from './components/hierarchy-tree/hierarchyTree.m
   ],
   exports: [
     HierarchyTreeModule,
-    ExamplesModule
+    ExamplesModule,
+    BreadcrumbsModule,
+    CustomersAndGroupsModule
   ]
 })
 export class ThingsboardExtensionWidgetsModule {

@@ -4,13 +4,12 @@ export interface IEntityNode {
     entityId: EntityId;
     name: string;
     children?: IEntityNode[];
-    group?: string;
+    disabled?: boolean;
     setChildren?(items: IEntityInfoWithChildren[]): void;
 };
 
 export interface FlatNode extends IEntityNode {
     expandable: boolean;
-    disabled?: boolean;
     level: number;
 };
 
@@ -25,24 +24,27 @@ export interface IEntityGroupsDictionary {
 export class EntityNode implements IEntityNode {
     entityId: EntityId;
     name: string;
-    group: string;
+    disabled?: boolean;
+    // group: string;
     protected _children?: IEntityNode[];
-    constructor(item: IEntityInfoWithChildren, group?: string) {
+    constructor(item: IEntityInfoWithChildren) {
         this.name = item.name;
         this.entityId = item.id;
-        this.group = 'base';
-        if (group) this.group = group;
-        if (this.entityId.entityType == EntityType.CUSTOMER) return;
-        this.group = this.name;
-        this.setChildren(item.children, this.group);
+        // this.group = 'base';
+        // if (group) this.group = group;
+        //if (this.entityId.entityType == EntityType.CUSTOMER) return;
+        //this.group = this.name;
+        if (!item.children) return;
+        if (item.children.length === 0) this.disabled = true;
+        this.setChildren(item.children);
     }
     public get children(): IEntityNode[] {
         return this._children;
     }
-    public setChildren(items: IEntityInfoWithChildren[], groupName?: string) {
+    public setChildren(items: IEntityInfoWithChildren[]) {
         this._children = [];
         for (const item of items) {
-            this._children.push(new EntityNode(item, groupName));
+            this._children.push(new EntityNode(item));
         }
     }
 };

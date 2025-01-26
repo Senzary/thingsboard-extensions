@@ -26,7 +26,7 @@ export class Breadcrumbs<T extends BaseData<HasId>> {
     active?: IBreadcrumb<T>;
     constructor(root?: T) {
         if (!root) return;
-        this.root = new Breadcrumb(root);
+        this.root = new Breadcrumb<T>(root);
     }
     addItem(newItem: T): Breadcrumb<T> {
         const item = new Breadcrumb(newItem);
