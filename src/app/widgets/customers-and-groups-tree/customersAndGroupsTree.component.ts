@@ -1,15 +1,13 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { AppState, CustomerService, DialogService, EntityGroupService } from '@core/public-api';
-import { Authority, AuthUser, Customer, EntityGroupInfo, EntityType, WidgetConfig } from '@shared/public-api';
+import { AuthUser, Customer, EntityGroupInfo, EntityType, WidgetConfig } from '@shared/public-api';
 import { WidgetAction, WidgetContext } from '@app/modules/home/models/widget-component.models';
 import { Breadcrumbs, IBreadcrumb } from '../../components/breadcrumbs/breadcrumbs.models';
 import { EntityNode, IEntityGroupsDictionary, IEntityInfoWithChildren, IEntityNode } from '../../components/hierarchy-tree/hierarchyTree.models';
 import { concatMap, forkJoin, from, map, mergeMap, Observable, of, Subscription, switchMap, tap, toArray } from 'rxjs';
 import { HierarchyTreeComponent } from '../../components/hierarchy-tree/public-api'
-
 import { CreateCustomerFormComponent } from '../create-customer-form/createCustomerForm.component';
-import { CustomDialogService } from '@app/modules/home/components/widget/dialog/custom-dialog.service';
 import { getUserCustomer, doesUserBelongToAdminGroup, AssetManagementDashboardStateParams } from '../../utils/public-api';
 
 // const SENZARY_CUSTOMER_NAME = 'Senzary Tenant Customer';
@@ -62,7 +60,6 @@ export class CustomersAndGroupsTreeComponent extends HierarchyTreeComponent<Cust
         // this._subscription = this.ctx.defaultSubscription;
         const user = this.ctx.currentUser;
         const userCustomerObservable = getUserCustomer(
-            user,
             this.customerService,
             this.ctx
         );

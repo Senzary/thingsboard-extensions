@@ -1,16 +1,123 @@
 <form 
     #createCustomerForm="ngForm"
-    [formGroup]="createCustomerFormGroup">
-    <mat-toolbar color="primary">
-        <h2>Add entity</h2>
-        <span class="flex-1"></span>
-        <button mat-icon-button (click)="cancel()" type="button">
+    [formGroup]="createCustomerFormGroup"
+    (ngSubmit)="save()"
+    class="create-customer-form"
+    style="width: 100%;max-width: 576px;">
+    <mat-toolbar fx-layout="row" color="primary">
+        <h2>Add Organisation</h2>
+        <span fxFlex></span>
+        <button 
+            mat-icon-button 
+            (click)="cancel()" 
+            type="button">
             <mat-icon class="material-icons">close</mat-icon>
         </button>
     </mat-toolbar>
-    <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading$ | async">
+    <mat-progress-bar 
+        color="warn" 
+        mode="indeterminate" 
+        *ngIf="isLoading$ | async">
     </mat-progress-bar>
-    <div mat-dialog-content></div>
+    <div style="height: 4px" *ngIf="!(isLoading$ | async)"></div>
+    <div mat-dialog-content fxLayout="column">
+        <tb-sz-form-field
+            [formGroup]="createCustomerFormGroup"
+            [fields]="fields">
+        </tb-sz-form-field>
+        
+        <mat-form-field
+            fxFlex
+            class="mat-block"
+            *ngFor="let field of fields">
+            <mat-label
+                *ngIf="'label' in field">
+                {{ field.label }}
+            </mat-label>
+            <mat-hint
+                *ngIf="'description' in field"
+                hintlabel="true">
+                {{ field.description }}
+            </mat-hint>
+            <input
+                matInput
+                [formControlName]="field.name"
+                *ngIf="((!field.input && (field.type === 'string' || field.type === 'integer' || field.type === 'double')) || field.input == 'input')"
+                required
+                [value]="createCustomerFormGroup.get(field.name)?.value"
+            />
+            <textarea
+                matInput
+                [formControlName]="field.name"
+                *ngIf="(field.input && field.input === 'textarea')"
+                required
+                [value]="createCustomerFormGroup.get(field.name)?.value"
+            ></textarea>
+            <mat-select
+                [formControlName]="field.name"
+                *ngIf="(field.type === 'enum')"
+                [required]="field.required">
+                <mat-option
+                    *ngFor="let option of field.enumOptions"
+                    [value]="option">
+                    {{ option }}
+                </mat-option>
+            </mat-select>
+            <mat-select
+                [formControlName]="field.name"
+                *ngIf="(field.input === 'select')"
+                [required]="field.required">
+                <mat-option
+                    *ngFor="let option of field.selectOptions"
+                    [value]="option.value"
+                >
+                    {{ option.label }}
+                </mat-option>
+            </mat-select>
+            <mat-select
+                [formControlName]="field.name"
+                *ngIf="(field.type === 'json' && field.input === 'multi-select')"
+                [required]="field.required"
+                multiple>
+                <mat-option
+                    *ngFor="let option of field.selectOptions"
+                    [value]="option.value">
+                    {{ option.label }}
+                </mat-option>
+            </mat-select>
+            <mat-chip-grid
+                #chipGrid
+                [required]="field.required"
+                *ngIf="(field.type === 'json' && field.input === 'chips')">
+                <mat-chip-row
+                    *ngFor="let chip of createCustomerFormGroup.get(field.name)?.value"
+                    (removed)="removeChip(chip, 'provisioningFields', field.name)"
+                    [editable]="true"
+                    (edited)="editChip($event, chip, 'provisioningFields', field.name)">
+                    {{ chip }}
+                    <button matChipRemove>
+                        <mat-icon>cancel</mat-icon>
+                    </button>
+                </mat-chip-row>
+                <input
+                    matInput
+                    placeholder="New item..."
+                    [matChipInputFor]="chipGrid"
+                    [matChipInputSeparatorKeyCodes]="[ENTER, COMMA]"
+                    [matChipInputAddOnBlur]="true"
+                    (matChipInputTokenEnd)="addChip($event, 'provisioningFields', field.name)"
+                />
+            </mat-chip-grid>
+            <mat-error
+                *ngIf="createCustomerFormGroup.get(field.name).hasError('required')"            >
+                A value for {{ field.label }} is required.
+            </mat-error>
+        </mat-form-field>
+        <tb-contact
+            [parentForm]="createCustomerFormGroup"
+            [isEdit]="true">
+        </tb-contact>
+    </div>
     <div mat-dialog-actions class="flex flex-row place-content-end" >
         <button mat-button color="primary"
                 type="button"
