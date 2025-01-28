@@ -1,44 +1,47 @@
 <mat-form-field
     fxFlex
     class="mat-block"
-    *ngFor="let field of fields">
-    <mat-label
-        *ngIf="'label' in field">
+>
+    <mat-label *ngIf="'label' in field">
         {{ field.label }}
     </mat-label>
     <mat-hint
         *ngIf="'description' in field"
-        hintlabel="true">
+        hintlabel="true"
+    >
         {{ field.description }}
     </mat-hint>
     <input
+        *ngIf="((!field.input && (field.type === 'string' || field.type === 'integer' || field.type === 'double')) || field.input == 'input')"
         matInput
         [formControlName]="field.name"
-        *ngIf="((!field.input && (field.type === 'string' || field.type === 'integer' || field.type === 'double')) || field.input == 'input')"
         required
-        [value]="formGroup.get(field.name)?.value"
+        [value]="control?.value"
     />
     <textarea
+        *ngIf="(field.input && field.input === 'textarea')"
         matInput
         [formControlName]="field.name"
-        *ngIf="(field.input && field.input === 'textarea')"
         required
-        [value]="formGroup.get(field.name)?.value"
+        [value]="control?.value"
     ></textarea>
     <mat-select
-        [formControlName]="field.name"
         *ngIf="(field.type === 'enum')"
-        [required]="field.required">
+        [formControlName]="field.name"
+        [required]="field.required"
+    >
         <mat-option
             *ngFor="let option of field.enumOptions"
-            [value]="option">
+            [value]="option"
+        >
             {{ option }}
         </mat-option>
     </mat-select>
     <mat-select
-        [formControlName]="field.name"
         *ngIf="(field.input === 'select')"
-        [required]="field.required">
+        [formControlName]="field.name"
+        [required]="field.required"
+    >
         <mat-option
             *ngFor="let option of field.selectOptions"
             [value]="option.value"
@@ -47,25 +50,29 @@
         </mat-option>
     </mat-select>
     <mat-select
-        [formControlName]="field.name"
         *ngIf="(field.type === 'json' && field.input === 'multi-select')"
+        [formControlName]="field.name"
         [required]="field.required"
-        multiple>
+        multiple
+    >
         <mat-option
             *ngFor="let option of field.selectOptions"
-            [value]="option.value">
+            [value]="option.value"
+        >
             {{ option.label }}
         </mat-option>
     </mat-select>
     <mat-chip-grid
         #chipGrid
         [required]="field.required"
-        *ngIf="(field.type === 'json' && field.input === 'chips')">
+        *ngIf="(field.type === 'json' && field.input === 'chips')"
+    >
         <mat-chip-row
-            *ngFor="let chip of formGroup.get(field.name)?.value"
-            (removed)="removeChip(chip, 'provisioningFields', field.name)"
+            *ngFor="let chip of formControl?.value"
+            (removed)="removeChip(chip, field.name)"
             [editable]="true"
-            (edited)="editChip($event, chip, 'provisioningFields', field.name)">
+            (edited)="editChip($event, chip, field.name)"
+        >
             {{ chip }}
             <button matChipRemove>
                 <mat-icon>cancel</mat-icon>
@@ -77,11 +84,10 @@
             [matChipInputFor]="chipGrid"
             [matChipInputSeparatorKeyCodes]="[ENTER, COMMA]"
             [matChipInputAddOnBlur]="true"
-            (matChipInputTokenEnd)="addChip($event, 'provisioningFields', field.name)"
+            (matChipInputTokenEnd)="addChip($event, field.name)"
         />
     </mat-chip-grid>
-    <mat-error
-        *ngIf="formGroup.get(field.name).hasError('required')"            >
+    <mat-error *ngIf="control.hasError('required')">
         A value for {{ field.label }} is required.
     </mat-error>
 </mat-form-field>

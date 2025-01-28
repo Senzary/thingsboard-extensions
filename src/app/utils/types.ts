@@ -1,4 +1,5 @@
 export enum CompanyHierarchy {
+    TENANT = "tenant",
     PARTNER = "partner",
     DISTRITBUTOR = "distributor",
     INTEGRATOR = "integrator",

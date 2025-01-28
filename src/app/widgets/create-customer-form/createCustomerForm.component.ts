@@ -5,7 +5,7 @@ import { AppState } from "@app/core/core.state";
 import { WidgetContext } from "@app/modules/home/models/widget-component.models";
 import { CustomerInfo, PageComponent } from "@shared/public-api";
 import { Store } from "@ngrx/store";
-import { camelToHuman, COMPANY_HIERARCHIES, CompanyHierarchy, FormField, getCustomerHierarchy, getUserCustomerHierarchy, getUserCustomerInfo, getUserCustomerInfos, SZDropdownItem, ZIP_CODE_PATTERNS } from "../../utils/public-api";
+import { camelToHuman, COMPANY_HIERARCHIES, CompanyHierarchy, FormField, getCustomerHierarchy, getUserCustomerInfo, getUserCustomerInfos, SZDropdownItem, ZIP_CODE_PATTERNS } from "../../utils/public-api";
 import { forkJoin, map, Subscription, tap } from "rxjs";
 import { CustomerService, EntityGroupService } from "@core/public-api";
 
@@ -17,8 +17,8 @@ import { CustomerService, EntityGroupService } from "@core/public-api";
 export class CreateCustomerFormComponent extends PageComponent implements OnInit {
     @Input() ctx: WidgetContext;
     @Input() dialogRef: MatDialogRef<typeof this>;
-    private customerService: CustomerService;
-    private entityGroupService: EntityGroupService;
+    customerService: CustomerService;
+    entityGroupService: EntityGroupService;
     private subscriptions: Subscription[] = [];
     public fields: FormField[];
     public parentOrganisationOptions: SZDropdownItem<CustomerInfo>[];
@@ -28,11 +28,13 @@ export class CreateCustomerFormComponent extends PageComponent implements OnInit
     constructor(
         store: Store<AppState>,
         private fb: FormBuilder,
-        customerService: CustomerService
+        customerService: CustomerService,
+        entityGroupService: EntityGroupService
     ) { 
         super(store); 
         this.fb = fb;
         this.customerService = customerService;
+        this.entityGroupService = entityGroupService;
     }
     ngOnInit(): void {
         console.log('>>> 💜 inside form, init..', this.ctx);
@@ -52,8 +54,11 @@ export class CreateCustomerFormComponent extends PageComponent implements OnInit
         const parentOrganisationFormSubscription = this.createCustomerFormGroup
             .get('parentOrganisation')
             .valueChanges
-            .subscribe(this.onParentOrganisationChange);
+            .subscribe((chosenParentOrganisation) => this.onParentOrganisationChange(
+                chosenParentOrganisation
+            ));
         this.subscriptions.push(parentOrganisationFormSubscription);
+        console.log(">>> 💚 just added fields:", this.fields);
         this.fields = Object.entries(
             this.createCustomerFormGroup.controls
         ).filter(
@@ -72,6 +77,7 @@ export class CreateCustomerFormComponent extends PageComponent implements OnInit
             if (field.input === "select") field.enumOptions = [];
             return field;
         });
+        console.log(">>> 💛 just added fields:", this.fields);
         // get user customer's customers to fill the dropdown 
         // list for parent customer input
         const customerInfosObservable = getUserCustomerInfos(
@@ -102,6 +108,7 @@ export class CreateCustomerFormComponent extends PageComponent implements OnInit
                     ); 
                 }
                 if (!this.createCustomerFormGroup) return;
+                console.log('>>> 💛 customers, organisations:', customers);
                 this.createCustomerFormGroup
                     .get('parentOrganisation')
                     .setValue(customers[0]);
@@ -121,12 +128,14 @@ export class CreateCustomerFormComponent extends PageComponent implements OnInit
             // fill out hierarchy dropdown based on parent 
             // customer hierarchy
             tap((hierarchy) => {
-                const options = [
-                    hierarchy,
-                    ...COMPANY_HIERARCHIES[hierarchy].mayHave
-                ]
                 const hierarchyField = this.fields
                     .find((field) => field.name === "hierarchy");
+                if (!hierarchy) {
+                    hierarchyField.selectOptions = [];
+                    return;
+                }
+                const options = COMPANY_HIERARCHIES[hierarchy]
+                    .mayHave;
                 hierarchyField.selectOptions = options.map(
                     (option) => ({
                         label: COMPANY_HIERARCHIES[option].label,
@@ -143,7 +152,7 @@ export class CreateCustomerFormComponent extends PageComponent implements OnInit
     }
     getZipCodeValidators(): ValidatorFn[] {
         const patternValidator = function(control: FormControl) {
-            if (!("parent" in control)) return [];
+            if (!control.parent) return [];
             const parentValues = control.parent.value;
             const country = parentValues.country;
             return [Validators.pattern(ZIP_CODE_PATTERNS[country])];
