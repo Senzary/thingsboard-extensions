@@ -4,15 +4,15 @@ import { MatDialogModule } from "@angular/material/dialog";
 import { CommonModule, NgClass } from "@angular/common";
 import { MatButtonModule } from "@angular/material/button";
 import { SharedModule } from "@shared/public-api";
+import { SZFormFieldModule } from "../../components/sz-form-field/public-api";
 
 @NgModule({
     declarations: [CreateCustomerFormComponent],
     imports: [
         NgClass,
-        MatDialogModule,
+        SharedModule,
         CommonModule,
-        MatButtonModule,
-        SharedModule
+        SZFormFieldModule
     ],
     exports: [
         CreateCustomerFormComponent

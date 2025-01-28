@@ -5,6 +5,7 @@
 export * from './components/examples/public-api';
 export * from './components/hierarchy-tree/public-api';
 export * from './components/breadcrumbs/public-api';
+export * from './components/sz-form-field/public-api';
 export * from './widgets/customers-and-groups-tree/public-api';
 export * from './widgets/create-customer-form/public-api';
 export * from './thingsboard-extension-widgets.module';

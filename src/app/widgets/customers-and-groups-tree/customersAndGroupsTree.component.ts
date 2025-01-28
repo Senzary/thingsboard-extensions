@@ -123,7 +123,6 @@ export class CustomersAndGroupsTreeComponent extends HierarchyTreeComponent<Cust
         if (!customerNode) {
             // first node, made out of children
             this.nodes = children.map((c) => new EntityNode(c));
-            console.log('>>> this is', this.dataSource);
         } else {
             customerNode.setChildren(children);
         }

@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 import { ExamplesModule } from './components/examples/examples.module';
 import { addLibraryStyles } from './scss/lib-styles';
 import { HierarchyTreeModule } from './components/hierarchy-tree/hierarchyTree.module';
-import { BreadcrumbsModule, CustomersAndGroupsModule } from './public-api';
+import { BreadcrumbsModule, CustomersAndGroupsModule, SZFormFieldModule } from './public-api';
 
 @NgModule({
   declarations: [],
@@ -20,7 +20,8 @@ import { BreadcrumbsModule, CustomersAndGroupsModule } from './public-api';
     HierarchyTreeModule,
     ExamplesModule,
     BreadcrumbsModule,
-    CustomersAndGroupsModule
+    CustomersAndGroupsModule,
+    SZFormFieldModule
   ]
 })
 export class ThingsboardExtensionWidgetsModule {
