@@ -21,12 +21,10 @@
     </mat-progress-bar>
     <div style="height: 4px" *ngIf="!(isLoading$ | async)"></div>
     <div mat-dialog-content fxLayout="column">
-        <tb-sz-form-field
-            *ngFor="let field of fields;"
+        <tb-sz-form-fieldset
             [formGroup]="createCustomerFormGroup"
-            [control]="createCustomerFormGroup.controls[field.name]"
-            [field]="field">
-        </tb-sz-form-field>
+            [fields]="fields">
+        </tb-sz-form-fieldset>
         <tb-contact
             [parentForm]="createCustomerFormGroup"
             [isEdit]="true">

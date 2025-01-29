@@ -4,7 +4,7 @@ import { MatDialogModule } from "@angular/material/dialog";
 import { CommonModule, NgClass } from "@angular/common";
 import { MatButtonModule } from "@angular/material/button";
 import { SharedModule } from "@shared/public-api";
-import { SZFormFieldModule } from "../../components/sz-form-field/public-api";
+import { SZFormFieldsetModule } from "../../components/sz-form-field-set/public-api";
 
 @NgModule({
     declarations: [CreateCustomerFormComponent],
@@ -12,7 +12,7 @@ import { SZFormFieldModule } from "../../components/sz-form-field/public-api";
         NgClass,
         SharedModule,
         CommonModule,
-        SZFormFieldModule
+        SZFormFieldsetModule
     ],
     exports: [
         CreateCustomerFormComponent
