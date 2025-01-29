@@ -1,8 +1,9 @@
 import { CustomerService, EntityGroupService } from "@app/core/public-api";
 import { WidgetContext } from "@app/modules/home/models/widget-component.models";
-import { Customer, EntityType } from "@shared/public-api";
+import { Customer, CustomerInfo, EntityType } from "@shared/public-api";
 import { map, Observable, switchMap } from "rxjs";
-import { CompanyHierarchy } from "./public-api";
+import { COMPANY_HIERARCHIES} from "./constants";
+import { CompanyHierarchy } from "./types";
 
 const SENZARY_CUSTOMER_NAME = 'Senzary Tenant Customer';
 
@@ -32,13 +33,34 @@ export function getCustomerHierarchy(
         }),
         // get hierarchy group and return hierarchy
         map((groupInfos) => {
-            for (const group of groupInfos) {
-                const name = group.name.toUpperCase().slice(-1);
-                if (name in CompanyHierarchy) {
-                    return CompanyHierarchy[name];
+            for (const [key, value] of Object.entries(COMPANY_HIERARCHIES)) {
+                for (const group of groupInfos) {
+                    if (group.name === value.groupName) {
+                        // this is hierarchy for this customer
+                        console.log('>>> 💚 hierarchy found:', key, value, group);
+                        return CompanyHierarchy[key.toUpperCase()];
+                    }
                 }
             }
             return undefined;
         })
+    );
+};
+
+export function getCustomerCustomers(
+    customerObservable: Observable<Customer | CustomerInfo>,
+    ctx: WidgetContext,
+    service: CustomerService 
+): Observable<CustomerInfo[]> {
+    return customerObservable.pipe(
+        switchMap((customerInfo) => {
+            const pageLink = ctx.pageLink(100,0);
+            return service.getCustomerCustomerInfos(
+                true,
+                customerInfo.id.id,
+                pageLink
+            );
+        }),
+        map((response) => response.data)
     );
 };

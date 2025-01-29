@@ -1,4 +1,4 @@
-import { getSenzaryCustomer, getCustomerHierarchy } from "./customerObservables";
+import { getSenzaryCustomer, getCustomerHierarchy, getCustomerCustomers } from "./customerObservables";
 import { doesUserBelongToAdminGroup, getUserCustomerInfo, getUserCustomer, getUserCustomerHierarchy, getUserCustomerInfos } from "./userObservables";
 import { AssetManagementDashboardStateParams } from "./dashboarsStateParams";
 import { 
@@ -24,6 +24,7 @@ export {
     SmartIndustryBusinessUnit,
     getUserCustomerHierarchy,
     getCustomerHierarchy,
+    getCustomerCustomers,
     COMPANY_HIERARCHIES,
     ZIP_CODE_PATTERNS,
     humanToKebab, 

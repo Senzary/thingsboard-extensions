@@ -1,18 +1,19 @@
 import { NgModule } from "@angular/core";
-import { SZFormFieldComponent } from "./szFormField.component";
+import { SZFormFiedsetComponent } from "./szFormFieldset.component";
 import { SharedModule } from "@shared/public-api";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
-import { NgClass } from "@angular/common";
+import { CommonModule, NgClass } from "@angular/common";
 
 @NgModule({
-    declarations: [SZFormFieldComponent],
+    declarations: [SZFormFiedsetComponent],
     imports: [
         NgClass,
         SharedModule, 
         MatFormFieldModule, 
+        CommonModule,
         MatInputModule
     ],
-    exports: [SZFormFieldComponent]
+    exports: [SZFormFiedsetComponent]
 })
-export class SZFormFieldModule {};
+export class SZFormFieldsetModule {};

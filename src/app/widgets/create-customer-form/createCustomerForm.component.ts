@@ -5,9 +5,14 @@ import { AppState } from "@app/core/core.state";
 import { WidgetContext } from "@app/modules/home/models/widget-component.models";
 import { CustomerInfo, PageComponent } from "@shared/public-api";
 import { Store } from "@ngrx/store";
-import { camelToHuman, COMPANY_HIERARCHIES, CompanyHierarchy, FormField, getCustomerHierarchy, getUserCustomerInfo, getUserCustomerInfos, SZDropdownItem, ZIP_CODE_PATTERNS } from "../../utils/public-api";
-import { forkJoin, map, Subscription, tap } from "rxjs";
+import { camelToHuman, COMPANY_HIERARCHIES, CompanyHierarchy, FormField, getCustomerCustomers, getCustomerHierarchy, getUserCustomerInfo, getUserCustomerInfos, SZDropdownItem, ZIP_CODE_PATTERNS } from "../../utils/public-api";
+import { concatMap, filter, forkJoin, from, map, mergeMap, of, Subscription, switchMap, tap, toArray } from "rxjs";
 import { CustomerService, EntityGroupService } from "@core/public-api";
+
+interface OrganisationWitHierarchies {
+    organisation: CustomerInfo;
+    hierarchies: SZDropdownItem<CompanyHierarchy>[];
+};
 
 @Component({
     selector: 'tb-create-customer-form',
@@ -20,10 +25,15 @@ export class CreateCustomerFormComponent extends PageComponent implements OnInit
     customerService: CustomerService;
     entityGroupService: EntityGroupService;
     private subscriptions: Subscription[] = [];
+    parentOrganisationFormSubscription: Subscription;
+    hierarchyObservableFormSubscription: Subscription;
     public fields: FormField[];
     public parentOrganisationOptions: SZDropdownItem<CustomerInfo>[];
     public companyHierarchyOptions: SZDropdownItem<CompanyHierarchy>[];
     public createCustomerFormGroup: FormGroup;
+
+    public organisationsAndHierarchies: OrganisationWitHierarchies[];
+    orgsAndHierarchiesSubscription: Subscription;
 
     constructor(
         store: Store<AppState>,
@@ -37,7 +47,9 @@ export class CreateCustomerFormComponent extends PageComponent implements OnInit
         this.entityGroupService = entityGroupService;
     }
     ngOnInit(): void {
-        console.log('>>> 💜 inside form, init..', this.ctx);
+        // TO DO: split form in 2 steps id & contact 
+        // TO DO: split into functions; setUpForm
+        // TO DO: create interfaces for this forms 
         this.createCustomerFormGroup = this.fb.group({
             parentOrganisation: [null, []],
             title: ["", [Validators.required, Validators.maxLength(255)]],
@@ -51,14 +63,16 @@ export class CreateCustomerFormComponent extends PageComponent implements OnInit
             phone: ["", []],
             email: ["", [Validators.email]]
         });
-        const parentOrganisationFormSubscription = this.createCustomerFormGroup
+        this.parentOrganisationFormSubscription = this.createCustomerFormGroup
             .get('parentOrganisation')
             .valueChanges
             .subscribe((chosenParentOrganisation) => this.onParentOrganisationChange(
                 chosenParentOrganisation
             ));
-        this.subscriptions.push(parentOrganisationFormSubscription);
-        console.log(">>> 💚 just added fields:", this.fields);
+        this.subscriptions.push(this.parentOrganisationFormSubscription);
+        // TO DO split into function build fields
+        // TO DO check if it makes sense to build a formfields 
+        // generic interface to type fields 
         this.fields = Object.entries(
             this.createCustomerFormGroup.controls
         ).filter(
@@ -78,78 +92,87 @@ export class CreateCustomerFormComponent extends PageComponent implements OnInit
             return field;
         });
         console.log(">>> 💛 just added fields:", this.fields);
-        // get user customer's customers to fill the dropdown 
-        // list for parent customer input
-        const customerInfosObservable = getUserCustomerInfos(
-            this.ctx, 
-            this.customerService
-        );
-        const userCustomerInfoObservable = getUserCustomerInfo(
+        // get user customer's customers to store organisations and 
+        // hierarchies available for each one according to its own
+        // hierarchy (based on group they belong to)
+        // TO DO split this into function; setUpData
+        this.orgsAndHierarchiesSubscription = getUserCustomerInfo(
             this.ctx,
             this.customerService
-        );
-        const parentOrganisationOptionsObservable = forkJoin([
-            userCustomerInfoObservable,
-            customerInfosObservable
-        ]).pipe(
-            map(([customerInfo, infos]) => {
-                return [customerInfo, ...infos];
+        ).pipe(
+            switchMap((customerInfo) => {
+                const observable = getCustomerCustomers(
+                    of(customerInfo),
+                    this.ctx,
+                    this.customerService
+                );
+                return forkJoin<[CustomerInfo, CustomerInfo[]]>([
+                    of(customerInfo),
+                    observable
+                ]); 
             }),
-            tap((customers) => {
-                // fill out parent customer dropdown
-                const parentOrganisationField = this.fields
-                    .find((field) => field.name === "parentOrganisation");
-                if (!!parentOrganisationField) {
-                    parentOrganisationField.selectOptions = customers.map(
-                        (customer) => ({
-                            label: customer.name,
-                            value: customer
+            mergeMap(([customerInfo, infos]) => {
+                return from([customerInfo, ...infos]);
+            }),
+            concatMap((info) => forkJoin([
+                of(info),
+                getCustomerHierarchy(
+                    info,
+                    this.entityGroupService
+                )
+            ])),
+            filter(([info, hierarchy]) => !!hierarchy && hierarchy in COMPANY_HIERARCHIES), 
+            map(([info, hierarchy]) => {
+                const organisationWithHierarchies: OrganisationWitHierarchies = {
+                    organisation: info,
+                    hierarchies: COMPANY_HIERARCHIES[hierarchy].mayHave.map(
+                        h => ({
+                            label: COMPANY_HIERARCHIES[h].label,
+                            value: h
                         })
-                    ); 
+                    )
+                };
+                return organisationWithHierarchies;
+            }),
+            toArray()
+        ).subscribe((orgsWithHierarchies) => {
+            this.organisationsAndHierarchies = orgsWithHierarchies;
+            this.fields = this.fields.map((field) => {
+                if (field.name === "parentOrganisation") {
+                    field.selectOptions = orgsWithHierarchies.map(
+                        (o) => ({
+                            label: o.organisation.title,
+                            value: o.organisation
+                        })
+                    );
                 }
-                if (!this.createCustomerFormGroup) return;
-                console.log('>>> 💛 customers, organisations:', customers);
-                this.createCustomerFormGroup
-                    .get('parentOrganisation')
-                    .setValue(customers[0]);
-            })
-        );
-        this.subscriptions.push(
-            parentOrganisationOptionsObservable.subscribe()
-        );
+                return field
+            });
+            if (!this.createCustomerFormGroup) return;
+            this.createCustomerFormGroup
+                .get('parentOrganisation')
+                .setValue(this.organisationsAndHierarchies[0].organisation);
+            console.log('>>> 🖤 orgs with hs', this.organisationsAndHierarchies);
+        });
     }
     onParentOrganisationChange(parentOrganisation: CustomerInfo): void {
-        // figure out chosen customer hierarchy to prepare 
-        // company hierarchy select options
-        const hierarchyObservable = getCustomerHierarchy(
-            parentOrganisation,
-            this.entityGroupService
-        ).pipe(
-            // fill out hierarchy dropdown based on parent 
-            // customer hierarchy
-            tap((hierarchy) => {
-                const hierarchyField = this.fields
-                    .find((field) => field.name === "hierarchy");
-                if (!hierarchy) {
-                    hierarchyField.selectOptions = [];
-                    return;
-                }
-                const options = COMPANY_HIERARCHIES[hierarchy]
-                    .mayHave;
-                hierarchyField.selectOptions = options.map(
-                    (option) => ({
-                        label: COMPANY_HIERARCHIES[option].label,
-                        value: option
-                    })
-                );
-                if (!this.createCustomerFormGroup) return;
-                this.createCustomerFormGroup
-                    .get('hierarchy')
-                    .setValue(this.companyHierarchyOptions[0]);
-            })
+        // find chosen org in this.organizationsAndHierarchies array
+        const chosenOrganisation = this.organisationsAndHierarchies
+            .find(
+                (organisationWithHierarchies) => organisationWithHierarchies
+                    .organisation.name === parentOrganisation.name
         );
-        this.subscriptions.push(hierarchyObservable.subscribe());
-    }
+        if (!chosenOrganisation) return;
+        this.fields = this.fields.map((field) => {
+            if (field.name === "hierarchy") field
+                .selectOptions = chosenOrganisation.hierarchies;
+            return field;
+        });
+        if (!this.createCustomerFormGroup) return;
+        this.createCustomerFormGroup
+            .get('hierarchy')
+            .setValue(chosenOrganisation.hierarchies[0].value);
+    };
     getZipCodeValidators(): ValidatorFn[] {
         const patternValidator = function(control: FormControl) {
             if (!control.parent) return [];

@@ -3,7 +3,7 @@ import { CompanyHierarchy, CompanyHierarchyPayload } from "./types";
 export const COMPANY_HIERARCHIES: Record<CompanyHierarchy, CompanyHierarchyPayload> = {
     [CompanyHierarchy.TENANT]: {
         label: "Tenant",
-        groupName: "tenant",
+        groupName: "tenant-customer",
         mayHave: [
             CompanyHierarchy.PARTNER,
             CompanyHierarchy.DISTRITBUTOR,
