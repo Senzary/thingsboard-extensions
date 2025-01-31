@@ -2,6 +2,8 @@
 /// Copyright © 2023 ThingsBoard, Inc.
 ///
 
+export * from './modules/public-api';
+export * from './components/sz-navbar/public-api';
 export * from './components/examples/public-api';
 export * from './components/hierarchy-tree/public-api';
 export * from './components/breadcrumbs/public-api';

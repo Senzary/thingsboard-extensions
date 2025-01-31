@@ -2,8 +2,7 @@ import { Authority, AuthUser, Customer, CustomerInfo, EntityId, PageLink } from 
 import { IOrganisation } from "./Organisation.types";
 import { CustomerService } from "thingsboard/src/app/core/public-api";
 import { map, Observable, of, switchMap } from "rxjs";
-import { FormField, SENZARY_CUSTOMER_NAME } from "../../utils/public-api";
-import { FieldsetType } from "src/app/utils/types";
+import { FormField, SENZARY_CUSTOMER_NAME, FieldsetType } from "../../utils/public-api";
 
 const organisationFields: Record<FieldsetType, FormField[]> = {
     basic: [],
