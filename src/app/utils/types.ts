@@ -1,3 +1,7 @@
+import { StateParams } from "thingsboard/src/app/core/public-api";
+import { BaseData, CustomerInfo, EntityId, HasId } from "thingsboard/src/app/shared/public-api";
+import { EntityName } from "typescript";
+
 export enum CompanyHierarchy {
     TENANT = "tenant",
     PARTNER = "partner",
@@ -49,6 +53,16 @@ export type FieldSpecialType = "map-coordinates" |
     "image-floorplan" | 
     "image-commercial";
 
+export type FieldsetType = "basic" | 
+    "contact" |
+    "map" |
+    "image" |
+    "downlink" |
+    "threshold" |
+    "telemetry" |
+    "kpi" |
+    "provisioning";
+
 export type FormField = {
     name: string;
     required?: boolean;
@@ -69,3 +83,11 @@ export type FormField = {
         unit: string;
     };
 };
+
+export interface BaseModel<T extends BaseData<HasId>> {
+    entityName?: string;
+    entityLabel?: string;
+    entityId?: EntityId;
+    self?: T;
+};
+

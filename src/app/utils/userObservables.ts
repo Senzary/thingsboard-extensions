@@ -13,8 +13,7 @@ export function getUserCustomer(
     let customerIdObservable = of(user.customerId);
     if (user.authority !== Authority.CUSTOMER_USER) {
         customerIdObservable = getSenzaryCustomer(
-            customerService, 
-            ctx
+            customerService
         ).pipe(
             map((customer) => customer.id.id)
         );

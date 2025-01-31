@@ -1,5 +1,7 @@
 import { CompanyHierarchy, CompanyHierarchyPayload } from "./types";
 
+export const SENZARY_CUSTOMER_NAME = 'Senzary Tenant Customer';
+
 export const COMPANY_HIERARCHIES: Record<CompanyHierarchy, CompanyHierarchyPayload> = {
     [CompanyHierarchy.TENANT]: {
         label: "Tenant",

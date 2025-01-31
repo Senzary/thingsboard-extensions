@@ -47,9 +47,12 @@ export class CreateCustomerFormComponent extends PageComponent implements OnInit
         this.entityGroupService = entityGroupService;
     }
     ngOnInit(): void {
+        // TO DO: create interfaces for this forms 
+        // how about a model, the organisation model
+        // it should be able to deliver arrays for
+        // fields
         // TO DO: split form in 2 steps id & contact 
         // TO DO: split into functions; setUpForm
-        // TO DO: create interfaces for this forms 
         this.createCustomerFormGroup = this.fb.group({
             parentOrganisation: [null, []],
             title: ["", [Validators.required, Validators.maxLength(255)]],
