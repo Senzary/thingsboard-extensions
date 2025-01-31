@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 import { ExamplesModule } from './components/examples/examples.module';
 import { addLibraryStyles } from './scss/lib-styles';
 import { HierarchyTreeModule } from './components/hierarchy-tree/hierarchyTree.module';
-import { BreadcrumbsModule, CustomersAndGroupsModule, SZFormFieldsetModule } from './public-api';
+import { BreadcrumbsModule, CustomersAndGroupsModule, SZFormFieldsetModule, SZNavbarModule } from './public-api';
 
 @NgModule({
   declarations: [],
@@ -17,6 +17,7 @@ import { BreadcrumbsModule, CustomersAndGroupsModule, SZFormFieldsetModule } fro
     CommonModule
   ],
   exports: [
+    SZNavbarModule,
     HierarchyTreeModule,
     ExamplesModule,
     BreadcrumbsModule,

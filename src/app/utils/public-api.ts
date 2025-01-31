@@ -43,5 +43,6 @@ export type {
     FormField,
     FieldInputType,
     FieldDataType,
-    BaseModel 
+    BaseModel,
+    FieldsetType
 };
