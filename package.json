@@ -9,7 +9,8 @@
     "build": "yarn run build:scss && node --max_old_space_size=8048 ./node_modules/@angular/cli/bin/ng build widget-extension && node install.js",
     "build:scss": "npx postcss ./src/app/scss/style.scss -o ./src/app/scss/style.comp.scss",
     "prepare": "patch-package",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "test": "jasmine"
   },
   "engines": {
     "node": ">=18.19.1",
@@ -64,6 +65,7 @@
     "eslint-plugin-jsdoc": "latest",
     "eslint-plugin-prefer-arrow": "latest",
     "eslint-plugin-tailwindcss": "^3.17.5",
+    "jasmine": "^5.5.0",
     "ng-packagr": "18.2.1",
     "ngrx-store-freeze": "^0.2.4",
     "patch-package": "^8.0.0",
