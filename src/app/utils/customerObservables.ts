@@ -2,16 +2,20 @@ import { CustomerService, EntityGroupService } from "@app/core/public-api";
 import { WidgetContext } from "@app/modules/home/models/widget-component.models";
 import { Customer, CustomerInfo, EntityType } from "@shared/public-api";
 import { map, Observable, switchMap } from "rxjs";
-import { COMPANY_HIERARCHIES} from "./constants";
-import { CompanyHierarchy } from "./types";
+import { CompanyHierarchy, COMPANY_HIERARCHIES, SZPageLink, SENZARY_CUSTOMER_NAME } from "./public-api";
 
-const SENZARY_CUSTOMER_NAME = 'Senzary Tenant Customer';
 
+
+/**
+ * returns observable with customer that belongs to 
+ * & represents the tenant.
+ * @param {CustomerService} service - http customer service 
+ * @returns 
+ */
 export function getSenzaryCustomer(
-    service: CustomerService, 
-    ctx: WidgetContext
+    service: CustomerService
 ): Observable<Customer> {
-    const pageLink = ctx.pageLink(10, 0, SENZARY_CUSTOMER_NAME);
+    const pageLink = new SZPageLink(10, 0, SENZARY_CUSTOMER_NAME);
     return service.getCustomers(pageLink).pipe(
         map((response) => response.data[0])
     );

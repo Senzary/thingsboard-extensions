@@ -1,14 +1,15 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { AppState, CustomerService, DialogService, EntityGroupService } from '@core/public-api';
-import { AuthUser, Customer, EntityGroupInfo, EntityType, WidgetConfig } from '@shared/public-api';
+import { AppState, CustomerService, DialogService, EntityGroupService, UserService } from '@core/public-api';
+import { AuthUser, Customer, CustomerInfo, EntityGroupInfo, EntityType, UserInfo, WidgetConfig } from '@shared/public-api';
 import { WidgetAction, WidgetContext } from '@app/modules/home/models/widget-component.models';
 import { Breadcrumbs, IBreadcrumb } from '../../components/breadcrumbs/breadcrumbs.models';
 import { EntityNode, IEntityGroupsDictionary, IEntityInfoWithChildren, IEntityNode } from '../../components/hierarchy-tree/hierarchyTree.models';
 import { concatMap, forkJoin, from, map, mergeMap, Observable, of, Subscription, switchMap, tap, toArray } from 'rxjs';
 import { HierarchyTreeComponent } from '../../components/hierarchy-tree/public-api'
 import { CreateCustomerFormComponent } from '../create-customer-form/createCustomerForm.component';
-import { getUserCustomer, doesUserBelongToAdminGroup, AssetManagementDashboardStateParams } from '../../utils/public-api';
+import { AssetManagementDashboardStateParams } from '../../utils/public-api';
+import { Organisation, OrganisationUser } from '../../sz-models/public-api';
 
 // const SENZARY_CUSTOMER_NAME = 'Senzary Tenant Customer';
 
@@ -23,9 +24,12 @@ import { getUserCustomer, doesUserBelongToAdminGroup, AssetManagementDashboardSt
 export class CustomersAndGroupsTreeComponent extends HierarchyTreeComponent<Customer> implements OnInit {
     @Input() ctx: WidgetContext;
     private _widgetConfig;
+    private organisation: Organisation;
+    private organisationUser: OrganisationUser;
     private customerService: CustomerService;
     private entityGroupService: EntityGroupService;
     private customDialogService: DialogService;
+    private userService: UserService;
     private createCustomerAction: WidgetAction = {
         name: 'action.create-customer',
         show: true,
@@ -35,6 +39,8 @@ export class CustomersAndGroupsTreeComponent extends HierarchyTreeComponent<Cust
         },
         
     };
+    public user$: Observable<UserInfo>;
+    public selectedOrganisation$: Observable<CustomerInfo>;
     private refreshing = false;
     private subscriptions: Subscription[];
     breadcrumbs = new Breadcrumbs<Customer>();
@@ -45,29 +51,37 @@ export class CustomersAndGroupsTreeComponent extends HierarchyTreeComponent<Cust
         changeDetection: ChangeDetectorRef,
         customerService: CustomerService,
         entityGroupService: EntityGroupService,
-        customDialogService: DialogService
+        customDialogService: DialogService,
+        userService: UserService
     ) { 
         super(store, changeDetection);
         this.customerService = customerService;
         this.entityGroupService = entityGroupService;
-        this.customDialogService = customDialogService; 
+        this.customDialogService = customDialogService;
+        this.userService = userService; 
     };
     ngOnInit(): void {
+        this.subscriptions = [];
         console.log('>>> initializint widget');
         // this.ctx.$scope.tree = this;
         this.configWidget(this.ctx.widgetConfig);
-        // this._settings = this.ctx.settings;
-        // this._subscription = this.ctx.defaultSubscription;
+        // test oop user approach to get user scope
         const user = this.ctx.currentUser;
-        const userCustomerObservable = getUserCustomer(
-            this.customerService,
-            this.ctx
-        );
+        this.organisationUser = new OrganisationUser(this.userService);
+        this.user$ = this.organisationUser.loadFromAuthUser(user);
+        this.organisation = new Organisation(this.customerService);
+        this.selectedOrganisation$ = this.organisation.loadFromAuthUser(user);
+        // const user$ = this.organisationUser
+        //     .loadFromAuthUser(this.ctx.currentUser).pipe(
+        //         switchMap((userInfo) => this.organisationUser
+        //             .getCustomer())
+        //     );
+        // end of test
+        // const user = this.ctx.currentUser;
         // refresh nodes & breadcrumbs
-        this.subscriptions = [];
-        this.subscriptions.push(this.setUpActions(user));
+        this.setUpActions(user);
         this.subscriptions.push(
-            this.refreshWidgetForCustomer(userCustomerObservable)
+            this.refreshWidgetForCustomer(this.selectedOrganisation$)
         );
         console.log('>>> finishing initialization for widget');
     };
@@ -77,18 +91,23 @@ export class CustomersAndGroupsTreeComponent extends HierarchyTreeComponent<Cust
         this._widgetConfig.borderRadius = '0.5rem';
         this._widgetConfig.color = '#FFF';
     };
-    setUpActions(user: AuthUser): Subscription {
+    setUpActions(user: AuthUser): void {
         // get current user user group; if admin, show, otherwise don't
-        return doesUserBelongToAdminGroup(
-            user.userId,
-            this.entityGroupService
-        ).pipe(
-            tap((userIsAdmin) => {
-                if (userIsAdmin) this.ctx.widgetActions = [
-                    this.createCustomerAction
-                ];
-            })
-        ).subscribe();
+        if (this.organisationUser.scope === "admin") {
+            this.ctx.widgetActions = [
+                this.createCustomerAction
+            ];
+        }
+        // return doesUserBelongToAdminGroup(
+        //     user.userId,
+        //     this.entityGroupService
+        // ).pipe(
+        //     tap((userIsAdmin) => {
+        //         if (userIsAdmin) this.ctx.widgetActions = [
+        //             this.createCustomerAction
+        //         ];
+        //     })
+        // ).subscribe();
     };
     refreshWidgetForCustomer(
         customerObservable: Observable<Customer>,
