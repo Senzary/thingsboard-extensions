@@ -84,10 +84,10 @@ export type FormField = {
     };
 };
 
-export interface BaseModel<T extends BaseData<HasId>> {
+export interface BaseManager<T extends BaseData<HasId>> {
     entityName?: string;
     entityLabel?: string;
     entityId?: EntityId;
-    self?: T;
+    entity?: T;
 };
 

@@ -1,5 +1,5 @@
 import { Authority, AuthUser, Customer, CustomerInfo, EntityId, PageLink } from "@shared/public-api";
-import { IOrganisation } from "./Organisation.types";
+import { IOrganisation } from "./OrganisationManager.types";
 import { CustomerService } from "thingsboard/src/app/core/public-api";
 import { map, Observable, of, switchMap } from "rxjs";
 import { FormField, SENZARY_CUSTOMER_NAME, FieldsetType } from "../../utils/public-api";
@@ -16,12 +16,12 @@ const organisationFields: Record<FieldsetType, FormField[]> = {
     threshold: []
 };
 
-export class Organisation implements IOrganisation {
+export class OrganisationManager implements IOrganisation {
     entityId?: EntityId;
     entityLabel?: string;
     entityName?: string;
     customerService: CustomerService;
-    self?: CustomerInfo;
+    entity?: CustomerInfo;
     fields = organisationFields;
     constructor(
         customerService: CustomerService

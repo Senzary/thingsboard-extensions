@@ -48,7 +48,7 @@ export class CreateCustomerFormComponent extends PageComponent implements OnInit
     }
     ngOnInit(): void {
         // TO DO: create interfaces for this forms 
-        // how about a model, the organisation model
+        // how about a model, the organisation manager model
         // it should be able to deliver arrays for
         // fields
         // TO DO: split form in 2 steps id & contact 

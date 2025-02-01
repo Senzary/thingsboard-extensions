@@ -29,6 +29,11 @@
             Insights
         </span>
     </button>
+    <ng-container *ngIf="userState$ | async as state">
+        <span *ngIf="state.user">
+            {{ state.user.email.split("@")[0] }}
+        </span>
+    </ng-container>
     <span class="example-spacer"></span>
     <span *ngIf="(user$ | async)">{{ userManager.scope }}</span>
     <button
