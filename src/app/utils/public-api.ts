@@ -10,7 +10,7 @@ import {
     FormField,
     FieldInputType,
     FieldDataType,
-    BaseModel,
+    BaseManager,
     FieldsetType
 } from "./types";
 import { COMPANY_HIERARCHIES, ZIP_CODE_PATTERNS, SENZARY_CUSTOMER_NAME } from "./constants";
@@ -43,6 +43,6 @@ export type {
     FormField,
     FieldInputType,
     FieldDataType,
-    BaseModel,
+    BaseManager,
     FieldsetType
 };

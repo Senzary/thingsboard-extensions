@@ -1,31 +1,31 @@
 import { AuthUser, EntityId, EntityInfoData, UserInfo } from "@shared/public-api";
 import { UserService } from "@core/public-api";
-import { IOrganisationUser, OrganisationUserRole } from "./OrganisationUser.types";
+import { IUserManager, UserScope } from "./user-manager.types";
 import { Observable, tap } from "rxjs";
 
 
-export class OrganisationUser implements IOrganisationUser {
+export class UserManager implements IUserManager {
     entityId?: EntityId;
     entityName?: string;
     entityLabel?: string;
     userService: UserService;
-    self?: UserInfo;
-    scope?: OrganisationUserRole;
+    entity?: UserInfo;
+    scope?: UserScope;
     constructor(
         userService: UserService
     ) {
         this.userService = userService;
-        this.scope = OrganisationUserRole.VIEWER;
+        this.scope = UserScope.VIEWER;
     };
     /**
-     * returns observable that provisions entity props, self & scope when
+     * returns observable that provisions entity props, entity & scope when
      * subscribed to.
      * @param {AuthUser} authUser - widget context current user `ctx.currentUser` 
      */
     loadFromAuthUser(authUser: AuthUser): Observable<UserInfo> {
         return this.userService.getUserInfo(authUser.userId)
             .pipe(
-                tap((userInfo) => this.self = userInfo),
+                tap((userInfo) => this.entity = userInfo),
                 tap((userInfo) => {
                     this.scope = this.getScopeFrom(userInfo.groups);
                 }),
@@ -43,15 +43,15 @@ export class OrganisationUser implements IOrganisationUser {
      */
     getScopeFrom(groups: EntityInfoData[]) {
         for (const group of groups) {
-            for (const key in OrganisationUserRole) {
+            for (const key in UserScope) {
                 if (group.name
                     .toLowerCase()
-                    .includes(OrganisationUserRole[key])
+                    .includes(UserScope[key])
                 ) {
-                    return OrganisationUserRole[key];
+                    return UserScope[key];
                 }
             }
         }
-        return OrganisationUserRole.VIEWER;
+        return UserScope.VIEWER;
     };
 }

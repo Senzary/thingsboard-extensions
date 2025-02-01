@@ -9,7 +9,7 @@ import { concatMap, forkJoin, from, map, mergeMap, Observable, of, Subscription,
 import { HierarchyTreeComponent } from '../../components/hierarchy-tree/public-api'
 import { CreateCustomerFormComponent } from '../create-customer-form/createCustomerForm.component';
 import { AssetManagementDashboardStateParams } from '../../utils/public-api';
-import { Organisation, OrganisationUser } from '../../sz-models/public-api';
+import { OrganisationManager, UserManager } from '../../iotlogiq/public-api';
 
 // const SENZARY_CUSTOMER_NAME = 'Senzary Tenant Customer';
 
@@ -24,8 +24,8 @@ import { Organisation, OrganisationUser } from '../../sz-models/public-api';
 export class CustomersAndGroupsTreeComponent extends HierarchyTreeComponent<Customer> implements OnInit {
     @Input() ctx: WidgetContext;
     private _widgetConfig;
-    private organisation: Organisation;
-    private organisationUser: OrganisationUser;
+    private organisationManager: OrganisationManager;
+    private userManager: UserManager;
     private customerService: CustomerService;
     private entityGroupService: EntityGroupService;
     private customDialogService: DialogService;
@@ -67,13 +67,13 @@ export class CustomersAndGroupsTreeComponent extends HierarchyTreeComponent<Cust
         this.configWidget(this.ctx.widgetConfig);
         // test oop user approach to get user scope
         const user = this.ctx.currentUser;
-        this.organisationUser = new OrganisationUser(this.userService);
-        this.user$ = this.organisationUser.loadFromAuthUser(user);
-        this.organisation = new Organisation(this.customerService);
-        this.selectedOrganisation$ = this.organisation.loadFromAuthUser(user);
-        // const user$ = this.organisationUser
+        this.userManager = new UserManager(this.userService);
+        this.user$ = this.userManager.loadFromAuthUser(user);
+        this.organisationManager = new OrganisationManager(this.customerService);
+        this.selectedOrganisation$ = this.organisationManager.loadFromAuthUser(user);
+        // const user$ = this.userManager
         //     .loadFromAuthUser(this.ctx.currentUser).pipe(
-        //         switchMap((userInfo) => this.organisationUser
+        //         switchMap((userInfo) => this.userManager
         //             .getCustomer())
         //     );
         // end of test
@@ -93,7 +93,7 @@ export class CustomersAndGroupsTreeComponent extends HierarchyTreeComponent<Cust
     };
     setUpActions(user: AuthUser): void {
         // get current user user group; if admin, show, otherwise don't
-        if (this.organisationUser.scope === "admin") {
+        if (this.userManager.scope === "admin") {
             this.ctx.widgetActions = [
                 this.createCustomerAction
             ];
