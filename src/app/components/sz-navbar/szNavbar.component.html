@@ -1,19 +1,42 @@
 <mat-toolbar>
     <button
-        mat-icon-button
-        class="nav-icon"
+        mat-button
+        class="nav-button"
         aria-label="Facility management button"
     >
         <mat-icon class="material-icons-round">apps</mat-icon>
-        Overview
+        <span *ngIf="(notMobile$ | async)?.matches">
+            Overview
+        </span>
+    </button>
+    <button
+        mat-button
+        class="nav-button"
+        aria-label="Facility management button"
+    >
+        <mat-icon class="material-icons-round">account_tree</mat-icon>
+        <span *ngIf="(notMobile$ | async)?.matches">
+            Management
+        </span>
+    </button>
+    <button
+        mat-button
+        class="nav-button"
+        aria-label="Facility management button"
+    >
+        <mat-icon class="material-icons-round">insights</mat-icon>
+        <span *ngIf="(notMobile$ | async)?.matches">
+            Insights
+        </span>
     </button>
     <span class="example-spacer"></span>
+    <span *ngIf="(user$ | async)">{{ userManager.scope }}</span>
     <button
         mat-icon-button
-        class="example-icon"
+        class="nav-icon"
         aria-label="Log out button"
     >
         <mat-icon class="material-icons-round">logout</mat-icon>
     </button>
-    <mat-icon svgIcon="senzary-isotype" />
+    <mat-icon class="isotype" svgIcon="senzary-isotype" />
 </mat-toolbar>
