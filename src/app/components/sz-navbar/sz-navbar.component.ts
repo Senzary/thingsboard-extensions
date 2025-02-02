@@ -15,7 +15,7 @@ import { NavOption } from "./sz-navbar.types";
     templateUrl: './sz-navbar.component.html',
     styleUrls: ['./sz-navbar.component.scss']
 }) 
-export class SZNavbarComponent implements OnInit, OnChanges {
+export class SZNavbarComponent implements OnInit {
     @Input() ctx: WidgetContext;
     mobile: boolean;
     store: Store<AppState & UserManagerState>;
@@ -55,11 +55,7 @@ export class SZNavbarComponent implements OnInit, OnChanges {
                 updatedState
             );
         });
-        console.log(">>> 💚 about to set mobile from settings", this.ctx.settings, this);
         this.mobile = this.ctx.settings.mobile;
-    };
-    ngOnChanges(changes: SimpleChanges): void {
-        console.log('>>> 💛 changes?', changes);
     };
     navigateToDashboard(dashboardName: NavOption) {
         // update store or state params??
