@@ -1,0 +1,49 @@
+<mat-toolbar class="nav-container">
+    <div class="nav-block">
+        <button
+            mat-flat-button
+            [class]='activeDashboard === "overview" ? "nav-button active" : "nav-button"'
+            (click)='navigateToDashboard("overview")'
+            aria-label="Facility management button"
+        >
+            <mat-icon class="material-icons-round">apps</mat-icon>
+            <span class="button-label" *ngIf="!mobile"> Overview</span>
+        </button>
+        <button
+            mat-flat-button
+            [class]='activeDashboard === "management" ? "nav-button active" : "nav-button"'
+            (click)='navigateToDashboard("management")'
+            aria-label="Facility management button"
+        >
+            <mat-icon class="material-icons-round">account_tree</mat-icon>
+            <span class="button-label" *ngIf="!mobile"> Management</span>
+        </button>
+        <button
+            mat-flat-button
+            (click)='navigateToDashboard("insights")'
+            [class]='activeDashboard === "insights" ? "nav-button active" : "nav-button"'
+            aria-label="Facility management button"
+        >
+            <mat-icon class="material-icons-round">insights</mat-icon>
+            <span class="button-label" *ngIf="!mobile"> Insights</span>
+        </button>
+    </div>
+    <div class="nav-block">
+        <ng-container *ngIf="user$ | async as user">
+            <!-- <tb-username-scope [user]=""></tb-username-scope> -->
+            <div class="username-scope-badge">
+                <p>{{ user.firstName }} {{ user.lastName }}</p>
+                <span *ngIf="userManager.scope">{{ userManager.scope }}</span>
+            </div>
+        </ng-container>
+        <button
+            mat-flat-button
+            class="nav-button"
+            aria-label="Log out button"
+            style="margin: 0 1rem;"
+        >
+            <mat-icon class="material-icons-round">logout</mat-icon>
+        </button>
+        <mat-icon class="isotype" svgIcon="senzary-isotype" />
+    </div>
+</mat-toolbar>

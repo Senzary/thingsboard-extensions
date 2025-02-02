@@ -2,4 +2,11 @@
 
 .tb-widget.widget-type-system-customWidget {
   //Global styles are added here. Using to isolate widget extension styles
+  --senzary-purple: #3d3b83;
+  --senzary-pink: #ce489a;
+}
+
+* {
+  --senzary-purple: #3d3b83;
+  --senzary-pink: #ce489a;
 }
