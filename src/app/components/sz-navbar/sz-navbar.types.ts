@@ -1,0 +1,1 @@
+export type NavOption = "overview" | "management" | "insights";
